@@ -1,0 +1,66 @@
+{
+	"info": {
+		"_postman_id": "b802e148-b84e-4ae7-a21a-4ed65aae2f33",
+		"name": "rummy_api",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "localhost:8000/api/start_game",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"game_id\":1,\n\t\"userids\":\"1,2\",\n\t\"table_no\":\"1\"\t\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8000/api/start_game",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"start_game"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:8000/api/players_move",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"game_id\":\"34\",\n\t\"userid\":\"1\",\n\t\"drop\":\"4OFdiams\",\n\t\"source\":\"deck\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8000/api/players_move",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"players_move"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}

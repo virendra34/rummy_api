@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 18, 2020 at 02:58 PM
+-- Generation Time: May 18, 2020 at 05:38 PM
 -- Server version: 10.4.10-MariaDB
 -- PHP Version: 7.1.33
 
@@ -32,6 +32,66 @@ CREATE TABLE `tbl_cards` (
   `id` int(11) NOT NULL,
   `card_name` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `tbl_cards`
+--
+
+INSERT INTO `tbl_cards` (`id`, `card_name`) VALUES
+(1, 'AOFhearts'),
+(2, '2OFhearts'),
+(3, '3OFhearts'),
+(4, '4OFhearts'),
+(5, '5OFhearts'),
+(6, '6OFhearts'),
+(7, '7OFhearts'),
+(8, '8OFhearts'),
+(9, '9OFhearts'),
+(10, '10OFhearts'),
+(11, 'JOFhearts'),
+(12, 'QOFhearts'),
+(13, 'KOFhearts'),
+(14, 'AOFdiams'),
+(15, '2OFdiams'),
+(16, '3OFdiams'),
+(17, '4OFdiams'),
+(18, '5OFdiams'),
+(19, '6OFdiams'),
+(20, '7OFdiams'),
+(21, '8OFdiams'),
+(22, '9OFdiams'),
+(23, '10OFdiams'),
+(24, 'JOFdiams'),
+(25, 'QOFdiams'),
+(26, 'KOFdiams'),
+(27, 'AOFspades'),
+(28, '2OFspades'),
+(29, '3OFspades'),
+(30, '4OFspades'),
+(31, '5OFspades'),
+(32, '6OFspades'),
+(33, '7OFspades'),
+(34, '8OFspades'),
+(35, '9OFspades'),
+(36, '10OFspades'),
+(37, 'JOFspades'),
+(38, 'QOFspades'),
+(39, 'KOFspades'),
+(40, 'AOFclubs'),
+(41, '2OFclubs'),
+(42, '3OFclubs'),
+(43, '4OFclubs'),
+(44, '5OFclubs'),
+(45, '6OFclubs'),
+(46, '7OFclubs'),
+(47, '8OFclubs'),
+(48, '9OFclubs'),
+(49, '10OFclubs'),
+(50, 'JOFclubs'),
+(51, 'QOFclubs'),
+(52, 'KOFclubs'),
+(53, 'Joker'),
+(54, 'Joke');
 
 -- --------------------------------------------------------
 
@@ -63,6 +123,7 @@ CREATE TABLE `tbl_gameplay_log` (
   `pick` varchar(500) DEFAULT NULL,
   `drop` varchar(500) DEFAULT NULL,
   `source` varchar(500) NOT NULL,
+  `ongoing_cards` text DEFAULT NULL,
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `updated_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -119,7 +180,7 @@ ALTER TABLE `tbl_games`
 -- AUTO_INCREMENT for table `tbl_cards`
 --
 ALTER TABLE `tbl_cards`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=55;
 
 --
 -- AUTO_INCREMENT for table `tbl_gameplay`

@@ -17,5 +17,6 @@ class GamePlayLogs extends Model
         'pick',
         'drop',
         'source',
+        'ongoing_cards',
     ];
 }

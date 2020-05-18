@@ -14,7 +14,7 @@ class GameController extends Controller
 {
     CONST CARDS_FOR_TWO_PLAYERS = 13;
     CONST CARDS_FOR_SIX_PLAYERS = 7;
-    protected $allCards = ['', 'AOFhearts','2OFhearts','3OFhearts','4OFhearts','5OFhearts','6OFhearts','7OFhearts','8OFhearts','9OFhearts','10OFhearts','JOFhearts','QOFhearts','KOFhearts','AOFdiams','2OFdiams','3OFdiams','4OFdiams','5OFdiams','6OFdiams','7OFdiams','8OFdiams','9OFdiams','10OFdiams','JOFdiams','QOFdiams','KOFdiams','AOFspades','2OFspades','3OFspades','4OFspades','5OFspades','6OFspades','7OFspades','8OFspades','9OFspades','10OFspades','JOFspades','QOFspades','KOFspades','AOFclubs','2OFclubs','3OFclubs','4OFclubs','5OFclubs','6OFclubs','7OFclubs','8OFclubs','9OFclubs','10OFclubs','JOFclubs','QOFclubs','KOFclubs','Joker','Joker'];
+    protected $allCards = [1 => 'AOFhearts',2 => '2OFhearts',3 => '3OFhearts',4 => '4OFhearts',5 => '5OFhearts',6 => '6OFhearts',7 => '7OFhearts',8 => '8OFhearts',9 => '9OFhearts',10 => '10OFhearts',11 => 'JOFhearts',12 => 'QOFhearts',13 => 'KOFhearts',14 => 'AOFdiams',15 => '2OFdiams',16 => '3OFdiams',17 => '4OFdiams',18 => '5OFdiams',19 => '6OFdiams',20 => '7OFdiams',21 => '8OFdiams',22 => '9OFdiams',23 => '10OFdiams',24 => 'JOFdiams',25 => 'QOFdiams',26 => 'KOFdiams',27 => 'AOFspades',28 => '2OFspades',29 => '3OFspades',30 => '4OFspades',31 => '5OFspades',32 => '6OFspades',33 => '7OFspades',34 => '8OFspades',35 => '9OFspades',36 => '10OFspades',37 => 'JOFspades',38 => 'QOFspades',39 => 'KOFspades',40 => 'AOFclubs',41 => '2OFclubs',42 => '3OFclubs',43 => '4OFclubs',44 => '5OFclubs',45 => '6OFclubs',46 => '7OFclubs',47 => '8OFclubs',48 => '9OFclubs',49 => '10OFclubs',50 => 'JOFclubs',51 => 'QOFclubs',52 => 'KOFclubs',53 => 'Joker-1',54 => 'Joker-2'];
     public function start_game(Request $req){
         $input = $req->all();
         $validator = Validator::make($req->all(), [
@@ -49,7 +49,9 @@ class GameController extends Controller
             $initialDeck[$gamePlayInput[$i-1]['userid']] = Cards::whereIn('id', explode(',',$gamePlayInput[$i-1]['initial_cards']))->get()??null;
         }
         GamePlay::insert($gamePlayInput);
+        $game = Games::where('no_of_players', count(explode(',',$input['userids'])))->where('game_id', $input['game_id'])->where('table_no', $input['table_no'])->where('game_status', 1)->get();
         $response = [
+            'game_id' => $game[0]->id,
             'initial_cards' => $initialDeck
         ];
         return response()->json([
@@ -87,6 +89,21 @@ class GameController extends Controller
                     ]
                 ]);
             }
+            $game = Games::find($input['game_id']);
+            if(!$game){
+                return response()->json([
+                    'success' => false,
+                    'data' => null,
+                    'message' => 'Invalid game_id !!!',
+                ]);
+            }
+            if($game->get()[0]->game_status === 0){
+                return response()->json([
+                    'success' => false,
+                    'data' => null,
+                    'message' => 'Invalid game status!!!',
+                ]);
+            }
             $gamePlay = GamePlay::where('game_id', $input['game_id'])->where('userid', $input['userid'])->get();
             $onGoingCards = explode(',',$gamePlay[0]->ongoing_cards);
             $pickedCard = (isset($input['pick']))? array_search($input['pick'], $this->allCards) : null;
@@ -100,7 +117,7 @@ class GameController extends Controller
             if($droppedCard){
                 $validateDrop = array_search($input['drop'], $this->allCards);
                 $this->validateCardFromOngoingCards($gamePlay, $input['drop'], 'drop');
-                unset($onGoingCards[$droppedCard]);
+                unset($onGoingCards[array_search($droppedCard, $onGoingCards)]);
             }
             if(!$validatePick && !$validateDrop){
                 return response()->json([
@@ -109,9 +126,20 @@ class GameController extends Controller
                     'message' => 'picked or dropped card name doesn\'t exist',
                 ]);
             }
-            # logic to detect if change occurance
-            // $dataArrayKey = array_keys($input['']);
-            // $colDiff=array_diff($hardCodedKey,$dataArrayKey);
+            # logic to detect if change occur more then 1
+            $gamePlayLog = GamePlayLogs::where('game_id', $input['game_id'])->where('userid', $input['userid'])->orderBy('created_at', 'DESC')->limit(2)->get();
+            // dd($gamePlayLog->toArray(), count($gamePlayLog));
+            if(count($gamePlayLog) > 1){
+                $arrayDiff=array_diff(explode(',', $gamePlayLog[0]->ongoing_cards), explode(',', $gamePlayLog[1]->ongoing_cards));
+                if(count($arrayDiff) > 1){
+                    $game->update(['game_status' => 0]);
+                    return response()->json([
+                        'success' => false,
+                        'data' => null,
+                        'message' => 'Breach Detected!!!',
+                    ]);
+                }
+            }
             $onGoingCards[] = $pickedCard;
             $onGoingCards = trim(implode(',',$onGoingCards), ',');
             // dd($onGoingCards, $pickedCard);
@@ -120,10 +148,12 @@ class GameController extends Controller
             $gamePlay->update(['ongoing_cards' => $onGoingCards]);
             if(isset($input['pick'])){
                 $input['log'] = "picked from {$input['source']}";
+                $input['ongoing_cards'] = $onGoingCards;
                 GamePlayLogs::create($input);
             }
             if(isset($input['drop'])){
                 $input['log'] = "dropped from {$input['source']}";
+                $input['ongoing_cards'] = $onGoingCards;
                 GamePlayLogs::create($input);
             }
             $gamePlay = GamePlay::where('id', $gamePlay->get()[0]->id)->get();
@@ -139,13 +169,13 @@ class GameController extends Controller
                 'data' => null,
                 'message' => $ce->getMessage()
             ]); 
-        }/*catch(\Exception $e){
+        }catch(\Exception $e){
             return response()->json([
                 'success' => false,
                 'data' => null,
                 'message' => 'Oops something went wrong!'
-            ]); 
-        }*/
+            ]);
+        }
     }
 
     public function validateCardFromOngoingCards($gamePlay, $cardName, $move){
@@ -156,10 +186,11 @@ class GameController extends Controller
         if($move === 'drop'){
             $onGoingCards = explode(',',$gamePlay[0]->ongoing_cards);
             if(!in_array(array_search($cardName, $this->allCards), $onGoingCards)){
-                throw new CustomException("Dropped card doesn't exist in previous card set");
+                throw new CustomException("Dropped card doesn't exist in current card set");
             }
         }elseif($move === 'pick'){
             $onGoingCards = explode(',',$gamePlay[0]->ongoing_cards);
+            // dd($onGoingCards, $this->allCards[array_search($cardName, $this->allCards)], array_search($cardName, $this->allCards));
             if(in_array(array_search($cardName, $this->allCards), $onGoingCards)){
                 throw new CustomException("Picked card already exist in current card set");
             }
