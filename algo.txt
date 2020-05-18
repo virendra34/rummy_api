@@ -1,0 +1,9 @@
+1) hit start_game api to distribute deck to all players
+2) hit players_move api to pick and drop cards
+    i.  Checke if picked/dropped cards exist in 'tbl_cards' table.
+        If not display picked/dropped card is invalid
+    ii.  Check if picked card exist in table 'tbl_gameplay'.
+         If exist display picked card already exists error.
+         If doesn't exist then proceed execution and update user's cards and save user's moves in 'tbl_gameplay_log' table.
+    iii. If picked and dropped cards are equal then just insert the user's move in 'tbl_gameplay_log' table.
+     iv. If there are more then 2 changes in last two moves for a single player display message as breach detected and discontinue the game.
